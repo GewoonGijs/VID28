@@ -18,14 +18,18 @@
 static byte stateMap[] = {0x5, 0x1, 0x3, 0x2, 0x6, 0x4};
 
 // Divdide each step in 4 microsteps makes 24 steps per cycle
-static byte microStepState[] = {251, 238, 218, 191, 160, 128, 95, 64, 37, 17, 4,
-                        0, 4, 17, 37, 64, 95, 128, 160, 191, 218, 238, 251, 255};
+static byte microStepState[] = {251, 238, 218, 191,
+                                160, 128, 95, 64,
+                                37, 17, 4, 0,
+                                4, 17, 37, 64,
+                                95, 128, 160, 191,
+                                218, 238, 251, 255};
 
-#define STARTINDEX_PIN1 0
-#define STARTINDEX_PIN23 8
-#define STARTINDEX_PIN4 16
+#define STARTINDEX_PIN1 18 // 0 // 23-5
+#define STARTINDEX_PIN23 10 // 23-13
+#define STARTINDEX_PIN4 2 // 23-21
 
-#define STEPTIME 800  // 800 microsecs between steps
+#define STEPTIME 60000  // 800 microsecs between steps
 
 MotorVID29::MotorVID29(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
 {
@@ -51,6 +55,12 @@ void MotorVID29::writeIO()
   if (microstepmode) {
     analogWrite(pins[0], microStepState[(currentState+STARTINDEX_PIN1) % stateCount]);
     analogWrite(pins[1], microStepState[(currentState+STARTINDEX_PIN23) % stateCount]);
+    // Special version with no microStep for pin23
+    //if (microStepState[currentState+STARTINDEX_PIN23] > 127) {
+    //  digitalWrite(pins[1], 0x1);
+    //} else {
+    //  digitalWrite(pins[1], 0x0);
+    //}
     analogWrite(pins[2], microStepState[(currentState+STARTINDEX_PIN4) % stateCount]);
   } else {
     byte mask = stateMap[currentState];
