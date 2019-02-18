@@ -29,7 +29,7 @@ static byte microStepState[] = {251, 238, 218, 191,
 #define STARTINDEX_PIN23 10 // 23-13
 #define STARTINDEX_PIN4 2 // 23-21
 
-#define STEPTIME 60000  // 800 microsecs between steps
+#define STEPTIME 1000  // 800 microsecs between steps, changed because prescaler is changed
 
 MotorVID29::MotorVID29(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
 {
@@ -55,12 +55,6 @@ void MotorVID29::writeIO()
   if (microstepmode) {
     analogWrite(pins[0], microStepState[(currentState+STARTINDEX_PIN1) % stateCount]);
     analogWrite(pins[1], microStepState[(currentState+STARTINDEX_PIN23) % stateCount]);
-    // Special version with no microStep for pin23
-    //if (microStepState[currentState+STARTINDEX_PIN23] > 127) {
-    //  digitalWrite(pins[1], 0x1);
-    //} else {
-    //  digitalWrite(pins[1], 0x0);
-    //}
     analogWrite(pins[2], microStepState[(currentState+STARTINDEX_PIN4) % stateCount]);
   } else {
     byte mask = stateMap[currentState];
