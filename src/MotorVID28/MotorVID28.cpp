@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Gijs Withagen.
+ *
+ * This is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+*/
 //
 //
 // The VID29 is a 6 state stepper motor. Pin 2 and 3 of the stepper motor
@@ -6,7 +22,7 @@
 // Note: to use microsteps we need to assing PWM capable outputs
 
 #include <Arduino.h>
-#include "MotorVID29.h"
+#include "MotorVID28.h"
 
 // State  2 1 0   Value
 // 0      1 0 1   0x5
@@ -31,7 +47,7 @@ static byte microStepState[] = {251, 238, 218, 191,
 
 #define STEPTIME 1000  // 800 microsecs between steps, changed because prescaler is changed
 
-MotorVID29::MotorVID29(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
+MotorVID28::MotorVID28(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
 {
   this->currentState = 0;
   this->steps = steps;
@@ -50,7 +66,7 @@ MotorVID29::MotorVID29(unsigned int steps, boolean microstepmode, char pin1, uns
 }
 
 
-void MotorVID29::writeIO()
+void MotorVID28::writeIO()
 {
   if (microstepmode) {
     analogWrite(pins[0], microStepState[(currentState+STARTINDEX_PIN1) % stateCount]);
@@ -65,28 +81,28 @@ void MotorVID29::writeIO()
   }
 }
 
-void MotorVID29::powerOff()
+void MotorVID28::powerOff()
 {
   for (int i=0;i<pinCount;i++) {
     digitalWrite(pins[i], 0);
   }
 }
 
-void MotorVID29::stepUp()
+void MotorVID28::stepUp()
 {
   currentStep = (currentStep + 1) % steps ;
   currentState = (currentState + 1) % stateCount;
   writeIO();
 }
 
-void MotorVID29::stepDown()
+void MotorVID28::stepDown()
 {
   currentStep = (currentStep + steps - 1) % steps ;
   currentState = (currentState + (stateCount - 1)) % stateCount;
   writeIO();
 }
 
-void MotorVID29::advance()
+void MotorVID28::advance()
 {
   // detect stopped state
   if (currentStep==targetStep) {
@@ -106,7 +122,7 @@ void MotorVID29::advance()
   time0 = micros();
 }
 
-void MotorVID29::setPosition(unsigned int pos)
+void MotorVID28::setPosition(unsigned int pos)
 {
   // pos is unsigned so don't need to check for <0
   targetStep = pos % steps;
@@ -119,13 +135,13 @@ void MotorVID29::setPosition(unsigned int pos)
   }
 }
 
-void MotorVID29::setPosition(unsigned int pos, signed char d)
+void MotorVID28::setPosition(unsigned int pos, signed char d)
 {
   setPosition(pos);
   dir = d; //overrule direction as set in setPosition
 }
 
-void MotorVID29::update()
+void MotorVID28::update()
 {
   if (!stopped) {
     unsigned long delta = micros() - time0;

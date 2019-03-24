@@ -1,0 +1,21 @@
+{
+    "name": "VID28",
+    "keywords": "VID28, Stepper, BKA30D, X25",
+    "description": "Arduino library for driving a VID28 or equivalent stepper motor.",
+    "authors":
+    {
+        "name": "Gijs Withagen",
+        "email": "gijs.withagen@xs4all.nl",
+        "url": "",
+        "maintainer": "true"
+    },
+    "repository":
+    {
+        "type": "git",
+        "url": "https://github.com/GewoonGijs/VID28.git"
+    },
+    "version": "1.0.0",
+    "frameworks": "arduino",
+    "platforms": "atmelavr",
+    "license": "AGPL-3.0-or-later"
+}
