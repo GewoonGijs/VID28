@@ -1,5 +1,5 @@
 {
-    "name": "VID28",
+    "name": "MotorVID28",
     "keywords": "VID28, Stepper, BKA30D, X25",
     "description": "Arduino library for driving a VID28 or equivalent stepper motor.",
     "authors":
