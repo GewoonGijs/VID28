@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map For MotorVID28
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+MotorVID28 
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+StepUp	KEYWORD2
+StepDown KEYWORD2
+update KYEYWORD2
+setPosition KEYWORD2
+powerOff KEYWORD2
+setPrescaler KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
