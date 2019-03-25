@@ -45,7 +45,7 @@ static byte microStepState[] = {251, 238, 218, 191,
 #define STARTINDEX_PIN23 10 // 23-13
 #define STARTINDEX_PIN4 2 // 23-21
 
-#define STEPTIME 1000  // 800 microsecs between steps, changed because prescaler is changed
+#define STEPTIME 800  // 800 microsecs between steps
 
 MotorVID28::MotorVID28(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
 {
