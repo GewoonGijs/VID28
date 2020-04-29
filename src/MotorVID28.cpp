@@ -20,7 +20,8 @@
 // are high and low simultaneously. So they share one IO pin.
 //
 // Note: to use microsteps we need to assing PWM capable outputs
-
+//
+//
 #include <Arduino.h>
 #include "MotorVID28.h"
 
@@ -32,6 +33,17 @@
 // 4      1 1 0   0x6
 // 5      1 0 0   0x4
 static byte stateMap[] = {0x5, 0x1, 0x3, 0x2, 0x6, 0x4};
+
+// Created an accelerating / decelarating ramp.
+// Probably is 8 stages of 8 steps enough
+//
+//    When starting, count number of steps / 8, as index in Array
+//
+//    When almost there (if steps_to_go < 64) Stepstogo / 8 as index in Array
+#define ACCELSTAGES 32
+#define ACCELSTEPS 8
+
+static int accelTable[ACCELSTAGES];
 
 // Divdide each step in 4 microsteps makes 24 steps per cycle
 static byte microStepState[] = {251, 238, 218, 191,
@@ -45,7 +57,8 @@ static byte microStepState[] = {251, 238, 218, 191,
 #define STARTINDEX_PIN23 10 // 23-13
 #define STARTINDEX_PIN4 2 // 23-21
 
-#define STEPTIME 800  // 800 microsecs between steps
+#define STEPTIME 2400  // Starting with 2400 microsecs between steps, gives
+#define FACTOR 0.95    // a minimu of 489 microsecs at step 31
 
 MotorVID28::MotorVID28(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
 {
@@ -63,6 +76,13 @@ MotorVID28::MotorVID28(unsigned int steps, boolean microstepmode, char pin1, uns
   stopped = true;
   currentStep = 0;
   targetStep = 0;
+  stepSinceStart = 0;
+  minDelay = MINIMUM_DELAY;
+  float factor = 1.0;
+  for (int i=0; i<ACCELSTAGES; i++){
+    accelTable[i]=(STEPTIME*factor);
+    factor *= FACTOR;
+  }
 }
 
 
@@ -104,6 +124,8 @@ void MotorVID28::stepDown()
 
 void MotorVID28::advance()
 {
+  unsigned int stepsToGo;
+
   // detect stopped state
   if (currentStep==targetStep) {
     stopped = true;
@@ -118,20 +140,39 @@ void MotorVID28::advance()
     stepDown();
   }
 
-  microDelay = STEPTIME;
+  if (stepSinceStart < ACCELSTAGES*ACCELSTEPS) {
+    microDelay = accelTable[stepSinceStart / ACCELSTEPS];
+    stepSinceStart++;  // Note, only first 64 steps matter
+  }
+  // Maybe we need to decelarate
+  if ((dir>0) && ((targetStep - currentStep) < ACCELSTAGES*ACCELSTEPS)) {
+    stepsToGo = targetStep - currentStep;
+  } else if ((dir<0) && ((currentStep - targetStep) < ACCELSTAGES*ACCELSTEPS))  {
+    stepsToGo = currentStep - targetStep;
+  }
+  if (stepsToGo < stepSinceStart) {
+    microDelay = accelTable[stepsToGo / ACCELSTEPS];
+  }
+  if (microDelay < minDelay) microDelay = minDelay;
   time0 = micros();
 }
 
 void MotorVID28::setPosition(unsigned int pos)
 {
+  int diff;
   // pos is unsigned so don't need to check for <0
   targetStep = pos % steps;
-  dir = currentStep<targetStep ? 1 : -1;
+
+  diff = targetStep - currentStep;
+  if (diff > (int)steps/2) diff = diff - steps;
+  if (diff < -(int)(steps/2)) diff = diff + steps;
+  dir = (diff>0) ? 1 : -1;
   if (stopped) {
     // reset the timer to avoid possible time overflow giving spurious deltas
     stopped = false;
     time0 = micros();
     microDelay = 0;
+    stepSinceStart = 0;
   }
 }
 
