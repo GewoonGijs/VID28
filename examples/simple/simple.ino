@@ -1,3 +1,4 @@
+
 /*
 * Copyright (c) 2019 Gijs Withagen.
 *
@@ -39,6 +40,7 @@ void calibrate(MotorVID28 motor) {
  end_max=0;
   for(int i=0; i<4320; i++) {
     val=analogRead(A3);
+    Serial.println(val);
     if (val>max) {
       max=val;
       start_max = motor.getPosition();
@@ -55,6 +57,14 @@ void calibrate(MotorVID28 motor) {
   diff = end_max - start_max;
   if (diff > 4320/2) { diff = diff + 4320; }
   zero_position = ((start_max + diff/2)%4320);
+  Serial.print("Zero Position: ");
+  Serial.print(zero_position);
+  Serial.print("(");
+  Serial.print(start_max);
+  Serial.print(" - ");
+  Serial.print(end_max);
+  Serial.println(")");
+
   motor.setPosition(zero_position);
   while(motor.isRunning()) motor.update();
   motor.setZero();
