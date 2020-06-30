@@ -35,7 +35,7 @@ class MotorVID28
    boolean isRunning() { return (!stopped); }
    void powerOff();
 
-   void setZero() { currentStep = 0; }  //Used in conjuction with a magnet and a Hall sensor.
+   void setZero() { currentStep = 0; };  //Used in conjuction with a magnet and a Hall sensor.
    void setMaxSpeed(unsigned int velocity) { minDelay = (velocity != 0) ? 1000000 / velocity : MINIMUM_DELAY ; } //velocity in ticks / second
 
  private:

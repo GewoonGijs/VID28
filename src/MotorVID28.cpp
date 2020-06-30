@@ -35,11 +35,11 @@
 static byte stateMap[] = {0x5, 0x1, 0x3, 0x2, 0x6, 0x4};
 
 // Created an accelerating / decelarating ramp.
-// Probably is 8 stages of 8 steps enough
+// Probably is 32 stages of 8 steps enough
 //
 //    When starting, count number of steps / 8, as index in Array
 //
-//    When almost there (if steps_to_go < 64) Stepstogo / 8 as index in Array
+//    When almost there (if steps_to_go < 32*8) Stepstogo / 8 as index in Array
 #define ACCELSTAGES 32
 #define ACCELSTEPS 8
 
@@ -58,7 +58,7 @@ static byte microStepState[] = {251, 238, 218, 191,
 #define STARTINDEX_PIN4 2 // 23-21
 
 #define STEPTIME 2400  // Starting with 2400 microsecs between steps, gives
-#define FACTOR 0.95    // a minimu of 489 microsecs at step 31
+#define FACTOR 0.95    // a minimum of 489 microsecs at step 31
 
 MotorVID28::MotorVID28(unsigned int steps, boolean microstepmode, char pin1, unsigned char pin2, unsigned char pin3)
 {
@@ -141,8 +141,9 @@ void MotorVID28::advance()
   }
 
   if (stepSinceStart < ACCELSTAGES*ACCELSTEPS) {
+    // We are still accelerating
     microDelay = accelTable[stepSinceStart / ACCELSTEPS];
-    stepSinceStart++;  // Note, only first 64 steps matter
+    stepSinceStart++;
   }
   // Maybe we need to decelarate
   if ((dir>0) && ((targetStep - currentStep) < ACCELSTAGES*ACCELSTEPS)) {
@@ -150,9 +151,12 @@ void MotorVID28::advance()
   } else if ((dir<0) && ((currentStep - targetStep) < ACCELSTAGES*ACCELSTEPS))  {
     stepsToGo = currentStep - targetStep;
   }
+  // Note we use stepSinceStart to compare, to assure it works as well, when the
+  // targeted speed is not yet reached.
   if (stepsToGo < stepSinceStart) {
     microDelay = accelTable[stepsToGo / ACCELSTEPS];
   }
+  // And limit always to the actual maximum speed.
   if (microDelay < minDelay) microDelay = minDelay;
   time0 = micros();
 }
