@@ -14,4 +14,4 @@ If you need to control two steppers with one Arduino, you need 6 PWM outputs. Th
 
 Have fun!!!
 
-N.B. The motors do have four pins, but from the datasheet it can be seen that pin 2 and 3 are simultaneously high and low during the complete step cycle. Therefore i did connet pin 3 and 4 of the motor to the same I/O pin on the Arduino. 
+N.B. The motors do have four pins, but from the datasheet it can be seen that pin 2 and 3 are simultaneously high and low during the complete step cycle. Therefore I connected pin 2 and 3 of the motor to the same I/O pin on the Arduino. 
